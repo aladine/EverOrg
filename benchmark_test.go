@@ -14,7 +14,6 @@ import (
 func (nodes Nodes) orgFormatOriginal() string {
 
 	value := ""
-	// TODO: use string.Buffer
 	header := 0
 	table := 0
 	list := 0
