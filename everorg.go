@@ -79,6 +79,7 @@ func mimeFiles(token html.Token) (string, string) {
 func (nodes Nodes) orgFormat() string {
 
 	var value strings.Builder
+
 	header := 0
 	table := 0
 	list := 0
@@ -187,7 +188,6 @@ func (nodes Nodes) orgFormat() string {
 
 			default:
 				fmt.Println("skip token: " + node.Token.Data)
-				break
 			}
 
 		case html.EndTagToken:
@@ -296,7 +296,7 @@ func main() {
 	newWrittenDir := filepath.Join(currentDir, baseName)
 	// strings.TrimSuffix(readFile, ext)
 	if _, err = os.Stat(newWrittenDir); os.IsNotExist(err) {
-		os.Mkdir(newWrittenDir, 0711)
+		_ = os.Mkdir(newWrittenDir, 0711)
 	}
 
 	// Create Attachments Directory if not existent
@@ -304,13 +304,13 @@ func main() {
 
 	attachmentPath = currentFilePathName + attFolderExt
 	if _, err = os.Stat(attachmentPath); os.IsNotExist(err) {
-		os.Mkdir(attachmentPath, 0711)
+		_ = os.Mkdir(attachmentPath, 0711)
 	}
 
 	b, _ := ioutil.ReadAll(xmlFile)
 
 	var q Query
-	xml.Unmarshal(b, &q)
+	_ = xml.Unmarshal(b, &q)
 
 	var f *os.File
 	// Parse the contained xml
@@ -334,17 +334,17 @@ func main() {
 		nodes := parseHTML(reader)
 
 		if isMerged {
-			f.WriteString(note.orgProperties())
-			f.WriteString(nodes.orgFormat())
-			f.Sync()
+			_, _ = f.WriteString(note.orgProperties())
+			_, _ = f.WriteString(nodes.orgFormat())
+			_ = f.Sync()
 		} else {
 			noteFileName := sanitize(note.Title) + "-" + note.Updated + ".org"
 			newFile, err := os.Create(filepath.Join(newWrittenDir, noteFileName))
 			if err != nil {
 				continue
 			}
-			newFile.WriteString(note.orgProperties())
-			newFile.WriteString(nodes.orgFormat())
+			_, _ = newFile.WriteString(note.orgProperties())
+			_, _ = newFile.WriteString(nodes.orgFormat())
 			_ = newFile.Close()
 		}
 
@@ -387,7 +387,7 @@ func sanitize(title string) string {
 func createAttachment(attachment Resource, attachmentPath string) error {
 	h := md5.New()
 	sDec, _ := b64.StdEncoding.DecodeString(attachment.Data.Content)
-	h.Write(sDec)
+	_, _ = h.Write(sDec)
 	filename := hex.EncodeToString(h.Sum(nil))
 	ext, err := mime.ExtensionsByType(attachment.Mime)
 	if err != nil {
